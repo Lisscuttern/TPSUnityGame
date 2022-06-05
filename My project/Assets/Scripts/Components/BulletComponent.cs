@@ -1,18 +1,21 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using OpenCover.Framework.Model;
 using UnityEngine;
 
 public class BulletComponent : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    #region SerializeFields
+    
+    [SerializeField] private Rigidbody m_rb;
+    [SerializeField] private float m_fireSpeed;
 
-    // Update is called once per frame
-    void Update()
+    #endregion
+
+
+    public float GetFireSpeed()
     {
-        
+        return m_fireSpeed;
     }
 }

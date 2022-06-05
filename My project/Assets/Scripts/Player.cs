@@ -13,6 +13,7 @@ public class Player : MonoBehaviour
     [SerializeField] private FloatingJoystick m_floatingJoystick;
     [SerializeField] private float m_speed;
     [SerializeField] private GameObject[] bullet;
+    [SerializeField] private Transform m_enemy;
 
     #endregion
 
@@ -21,6 +22,7 @@ public class Player : MonoBehaviour
     private void FixedUpdate()
     {
         Movement();
+        Fire();
     }
 
     /// <summary>
@@ -66,6 +68,11 @@ public class Player : MonoBehaviour
     /// </summary>
     private void Fire()
     {
+        if (bullet[0] == null)
+            return;
+
         
+        bullet[0].gameObject.GetComponent<Rigidbody>().velocity = m_enemy.position * bullet[0].gameObject.GetComponent<BulletComponent>().GetFireSpeed();
+        Destroy(bullet[0].gameObject,3f);
     }
 }
