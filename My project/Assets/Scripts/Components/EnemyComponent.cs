@@ -11,6 +11,7 @@ public class EnemyComponent : MonoBehaviour
     [SerializeField] private GameObject[] bullet;
     [SerializeField] private Transform m_player;
     [SerializeField] private TextMeshProUGUI m_enemyText;
+    [SerializeField] private GameObject m_loseText;
     
     #endregion
 
@@ -19,9 +20,9 @@ public class EnemyComponent : MonoBehaviour
     private GameObject targetBullet;
     private float distance;
     private int enemyKill = 0;
+    private bool gameEnd = false;
 
     #endregion
-    
     
     private void Start()
     {
@@ -36,6 +37,7 @@ public class EnemyComponent : MonoBehaviour
     private void Update()
     {
             Movement();
+            Kill();
     }
 
     /// <summary>
@@ -43,6 +45,9 @@ public class EnemyComponent : MonoBehaviour
     /// </summary>
     private void Movement()
     {
+        if (gameEnd)
+            return;
+        
         if (DOTween.IsTweening("EnemyMove"))
             return;
         Sequence sequence = DOTween.Sequence();
@@ -62,6 +67,9 @@ public class EnemyComponent : MonoBehaviour
     /// </summary>
     private void BulletCollect()
     {
+        if (gameEnd)
+            return;
+        
         bullet[0] = targetBullet;
         targetBullet.transform.parent = transform;
         targetBullet.transform.DOLocalJump(new Vector3(0, 1.5f, 0),1f,1,0.5f);
@@ -72,6 +80,9 @@ public class EnemyComponent : MonoBehaviour
     /// </summary>
     private void Fire()
     {
+        if (gameEnd)
+            return;
+        
         if (bullet[0] == null)
             return;
         distance = Vector3.Distance(transform.position, m_player.position);
@@ -92,15 +103,29 @@ public class EnemyComponent : MonoBehaviour
             m_enemyText.text = "Enemy Kill : " + enemyKill;
             Destroy(bullet[0].gameObject);
         });
-        
-        
-        
+
         sequence.SetId("BulletFire");
         sequence.Play();
     }
 
+    private void Kill()
+    {
+        if (gameEnd)
+            return;
+        
+        if (enemyKill >= 10)
+        {
+            m_loseText.SetActive(true);
+            Destroy(m_player.gameObject);
+            gameEnd = true;
+        }
+    }
+
     private void OnTriggerEnter(Collider other)
     {
+        if (gameEnd)
+            return;
+        
         if (other.gameObject.tag == "Bullet")
         {
             if (bullet[0] != null)

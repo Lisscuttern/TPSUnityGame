@@ -13,6 +13,8 @@ public class Player : MonoBehaviour
     [SerializeField] private Transform m_enemy;
     [SerializeField] private GameObject m_targetBullet;
     [SerializeField] private TextMeshProUGUI m_playerText;
+    [SerializeField] private GameObject m_winText;
+    
 
     #endregion
 
@@ -20,6 +22,7 @@ public class Player : MonoBehaviour
 
     private float distance;
     private int playerKill = 0;
+    private bool gameEnd = false;
     
     #endregion
 
@@ -35,6 +38,13 @@ public class Player : MonoBehaviour
         {
             BulletPosUpdate();
         }
+
+        if (gameEnd)
+        {
+            m_speed = 0;
+        }
+
+        Kill();
     }
 
     /// <summary>
@@ -42,6 +52,9 @@ public class Player : MonoBehaviour
     /// </summary>
     private void Movement()
     {
+        if (gameEnd)
+            return; 
+        
         m_rb.velocity = new Vector3(
             m_floatingJoystick.Horizontal * m_speed,
             m_rb.velocity.y,
@@ -56,6 +69,9 @@ public class Player : MonoBehaviour
     /// </summary>
     private void BulletCollect()
     {
+        if (gameEnd)
+            return;
+        
         if (DOTween.IsTweening("BulletCollect"))
             return;
         bullet[0] = m_targetBullet;
@@ -74,6 +90,9 @@ public class Player : MonoBehaviour
     /// </summary>
     private void BulletPosUpdate()
     {
+        if (gameEnd)
+            return;
+        
         m_targetBullet.transform.localPosition = new Vector3(0, 1, 0);
     }
     
@@ -82,6 +101,9 @@ public class Player : MonoBehaviour
     /// </summary>
     private void Fire()
     {
+        if (gameEnd)
+            return;
+        
         if (bullet[0] == null)
             return;
         distance = Vector3.Distance(transform.position, m_enemy.position);
@@ -103,14 +125,28 @@ public class Player : MonoBehaviour
             Destroy(bullet[0].gameObject);
         });
 
-        
-
         sequence.SetId("BulletFire");
         sequence.Play();
+    }
+
+    private void Kill()
+    {
+        if (gameEnd)
+            return;
+        
+        if (playerKill >= 10)
+        {
+            m_winText.SetActive(true);
+            Destroy(m_enemy.gameObject);
+            gameEnd = true;
+        }
     }
     
     private void OnTriggerEnter(Collider other)
     {
+        if (gameEnd)
+            return;
+        
         if (other.gameObject.tag == "Bullet")
         {
             if (bullet[0] != null)
@@ -119,6 +155,4 @@ public class Player : MonoBehaviour
             BulletCollect();
         }
     }
-
-    
 }
