@@ -1,5 +1,6 @@
 using UnityEngine;
 using DG.Tweening;
+using TMPro;
 using Random = UnityEngine.Random;
 
 public class EnemyComponent : MonoBehaviour
@@ -9,6 +10,7 @@ public class EnemyComponent : MonoBehaviour
     [SerializeField] private Vector3 movePos;
     [SerializeField] private GameObject[] bullet;
     [SerializeField] private Transform m_player;
+    [SerializeField] private TextMeshProUGUI m_enemyText;
     
     #endregion
 
@@ -16,6 +18,7 @@ public class EnemyComponent : MonoBehaviour
 
     private GameObject targetBullet;
     private float distance;
+    private int enemyKill = 0;
 
     #endregion
     
@@ -85,9 +88,12 @@ public class EnemyComponent : MonoBehaviour
         Sequence sequence = DOTween.Sequence();
         sequence.Join(bullet[0].transform.DOMove(m_player.position, .2f)).OnComplete(() =>
         {
+            enemyKill++;
+            m_enemyText.text = "Enemy Kill : " + enemyKill;
+            Destroy(bullet[0].gameObject);
         });
         
-        Destroy(bullet[0].gameObject,.5f);
+        
         
         sequence.SetId("BulletFire");
         sequence.Play();

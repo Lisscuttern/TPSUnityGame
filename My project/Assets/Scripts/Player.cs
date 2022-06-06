@@ -1,5 +1,6 @@
 using UnityEngine;
 using DG.Tweening;
+using TMPro;
 
 public class Player : MonoBehaviour
 {
@@ -10,13 +11,15 @@ public class Player : MonoBehaviour
     [SerializeField] private float m_speed;
     [SerializeField] private GameObject[] bullet;
     [SerializeField] private Transform m_enemy;
-    [SerializeField] private GameObject targetBullet;
+    [SerializeField] private GameObject m_targetBullet;
+    [SerializeField] private TextMeshProUGUI m_playerText;
 
     #endregion
 
     #region Private Fields
 
     private float distance;
+    private int playerKill = 0;
     
     #endregion
 
@@ -28,7 +31,7 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
-        if (targetBullet != null && distance > 10)
+        if (m_targetBullet != null && distance > 10)
         {
             BulletPosUpdate();
         }
@@ -55,10 +58,10 @@ public class Player : MonoBehaviour
     {
         if (DOTween.IsTweening("BulletCollect"))
             return;
-        bullet[0] = targetBullet;
-        targetBullet.transform.parent = transform;
+        bullet[0] = m_targetBullet;
+        m_targetBullet.transform.parent = transform;
         Sequence sequence = DOTween.Sequence();
-        sequence.Join(targetBullet.transform.DOLocalJump(new Vector3(0, 1, 0),1f,1,0.5f)).OnComplete(() =>
+        sequence.Join(m_targetBullet.transform.DOLocalJump(new Vector3(0, 1, 0),1f,1,0.5f)).OnComplete(() =>
         {
         });
 
@@ -71,7 +74,7 @@ public class Player : MonoBehaviour
     /// </summary>
     private void BulletPosUpdate()
     {
-        targetBullet.transform.localPosition = new Vector3(0, 1, 0);
+        m_targetBullet.transform.localPosition = new Vector3(0, 1, 0);
     }
     
     /// <summary>
@@ -95,9 +98,12 @@ public class Player : MonoBehaviour
         Sequence sequence = DOTween.Sequence();
         sequence.Join(bullet[0].transform.DOMove(m_enemy.position, .2f)).OnComplete(() =>
         {
+            playerKill++;
+            m_playerText.text ="Player Kill : " + playerKill;
+            Destroy(bullet[0].gameObject);
         });
 
-        Destroy(bullet[0].gameObject, .5f);
+        
 
         sequence.SetId("BulletFire");
         sequence.Play();
@@ -109,8 +115,10 @@ public class Player : MonoBehaviour
         {
             if (bullet[0] != null)
                 return;
-            targetBullet = other.gameObject.GetComponent<BulletComponent>().gameObject;
+            m_targetBullet = other.gameObject.GetComponent<BulletComponent>().gameObject;
             BulletCollect();
         }
     }
+
+    
 }
